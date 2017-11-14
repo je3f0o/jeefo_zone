@@ -1,7 +1,7 @@
 /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.
 * File Name   : index.js
 * Created at  : 2017-07-20
-* Updated at  : 2017-08-24
+* Updated at  : 2017-09-28
 * Author      : jeefo
 * Purpose     :
 * Description :
@@ -18,15 +18,18 @@ var $q           = require("jeefo_q"),
 invoker = function (zone, original, instance, args) {
 	args[0] = zone.bind(args[0]);
 	return original.apply(instance, args);
+},
+event_invoker = function (zone, original, instance, args) {
+	args[1] = zone.bind(args[1]);
+	return original.apply(instance, args);
 };
 
 zone.patch("window", window, "setTimeout" , invoker);
 zone.patch("window", window, "setInterval", invoker);
 
-zone.patch("JeefoElement", JeefoElement.prototype, "on", function (zone, original, instance, args) {
-	args[1] = zone.bind(args[1]);
-	return original.apply(instance, args);
-});
+zone.patch("window", window, "addEventListener", event_invoker);
+zone.patch("JeefoElement", JeefoElement.prototype, "on", event_invoker);
+
 /*
 this.patch("EventTarget", window.EventTarget.prototype, "addEventListener", function (zone, original, instance, args) {
 	args[1] = zone.bind(args[1]);
